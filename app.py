@@ -79,13 +79,21 @@ def format_section_links(sections):
 
 def format_sections_to_html(sections):
     html_body = ""
+    colon_pattern = re.compile(r'^(.*?):(.*)$')
+
     for i, section in enumerate(sections):
         html_body += f'<div class="section" id="section-{i}">'
         html_body += f'<h2>{section["name"]} <button onclick="toggleVisibility(\'section-{i}-content\')">Toggle</button></h2>'
         html_body += f'<div id="section-{i}-content">'
         line_number = 1
         for line in section['content']:
-            line_html = f'<span class="line-number">{line_number}</span><span class="code-line">{line}</span><br>'
+            colon_match = colon_pattern.match(line)
+            if colon_match:
+                bold_text = colon_match.group(1).strip()
+                remaining_text = colon_match.group(2).strip()
+                line_html = f'<span class="line-number">{line_number}</span><span class="code-line"><strong>{bold_text}:</strong> {remaining_text}</span><br>'
+            else:
+                line_html = f'<span class="line-number">{line_number}</span><span class="code-line">{line}</span><br>'
             html_body += line_html
             line_number += 1
         html_body += '</div></div>'
