@@ -1,0 +1,11 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div>
+    {{ section_links|safe }}
+</div>
+<div class="code">
+    {{ html_output|safe }}
+</div>
+<a href="{{ url_for('upload_file') }}">Upload another file</a>
+{% endblock %}

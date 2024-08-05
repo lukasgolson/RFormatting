@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>R Script Output</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+        }
+        .section {
+            margin-top: 20px;
+            padding-top: 10px;
+            border-top: 2px solid #333;
+        }
+        .code {
+            background: #f4f4f4;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            overflow-x: auto;
+        }
+        .line-number {
+            color: #999;
+            user-select: none;
+            padding-right: 10px;
+            border-right: 1px solid #ddd;
+            margin-right: 10px;
+        }
+        .highlight {
+            background-color: #ffffcc;
+        }
+        ul {
+            list-style-type: none;
+        }
+        li {
+            margin-bottom: 10px;
+        }
+    </style>
+    <script>
+        function toggleVisibility(id) {
+            var elem = document.getElementById(id);
+            if (elem.style.display === "none") {
+                elem.style.display = "block";
+            } else {
+                elem.style.display = "none";
+            }
+        }
+    </script>
+</head>
+<body>
+    {% block content %}{% endblock %}
+</body>
+</html>
