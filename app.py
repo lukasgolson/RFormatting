@@ -7,6 +7,36 @@ app = Flask(__name__)
 app.config['UPLOAD_FOLDER'] = 'uploads'
 os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
 
+class Section:
+    def __init__(self, name):
+        self.name = name
+        self.content = []
+
+    def add_line(self, line):
+        self.content.append(line)
+
+    def is_empty(self):
+        return not any(line.strip() for line in self.content)
+
+    def to_html(self, index):
+        colon_pattern = re.compile(r'^(.*?):(.*)$')
+        html_body = f'<div class="section" id="section-{index}">'
+        html_body += f'<h2 onclick="toggleVisibility(\'section-{index}-content\')" style="cursor:pointer;">{self.name} <button>Toggle</button></h2>'
+        html_body += f'<div id="section-{index}-content" style="display:none;">'
+        line_number = 1
+        for line in self.content:
+            line_style = 'display:none;' if line.startswith('$') or line.startswith('[1]') else ''
+            colon_match = colon_pattern.match(line)
+            if colon_match:
+                bold_text = colon_match.group(1).strip()
+                remaining_text = colon_match.group(2).strip()
+                line_html = f'<span class="line-number" style="{line_style}">{line_number}</span><span class="code-line" style="{line_style}"><strong>{bold_text}:</strong> {remaining_text}</span><br>'
+            else:
+                line_html = f'<span class="line-number" style="{line_style}">{line_number}</span><span class="code-line" style="{line_style}">{line}</span><br>'
+            html_body += line_html
+            line_number += 1
+        html_body += '</div></div>'
+        return html_body
 
 def fix_encoding_issues(text):
     replacements = {
@@ -24,7 +54,6 @@ def fix_encoding_issues(text):
     for old, new in replacements.items():
         text = text.replace(old, new)
     return text
-
 
 def parse_sections(r_output):
     r_output = fix_encoding_issues(r_output)
@@ -45,10 +74,7 @@ def parse_sections(r_output):
             if current_section:
                 sections.append(current_section)
             section_name = section_header_pattern.match(line).group(1).strip()
-            current_section = {
-                'name': section_name,
-                'content': []
-            }
+            current_section = Section(section_name)
             header_block = False
             continue
 
@@ -57,48 +83,28 @@ def parse_sections(r_output):
             continue
 
         if current_section:
-            current_section['content'].append(line)
+            current_section.add_line(line)
 
     if current_section:
         sections.append(current_section)
 
     return sections
 
-
 def remove_empty_sections(sections):
-    return [section for section in sections if any(line.strip() for line in section['content'])]
-
+    return [section for section in sections if not section.is_empty()]
 
 def format_section_links(sections):
-    links = '<ul>'
+    links = '<ul id="section-links">'
     for i, section in enumerate(sections):
-        links += f'<li><a href="#section-{i}">{section["name"]}</a></li>'
+        links += f'<li><a href="#section-{i}" onclick="highlightSection(\'section-{i}\')">{section.name}</a></li>'
     links += '</ul>'
     return links
 
-
 def format_sections_to_html(sections):
     html_body = ""
-    colon_pattern = re.compile(r'^(.*?):(.*)$')
-
     for i, section in enumerate(sections):
-        html_body += f'<div class="section" id="section-{i}">'
-        html_body += f'<h2>{section["name"]} <button onclick="toggleVisibility(\'section-{i}-content\')">Toggle</button></h2>'
-        html_body += f'<div id="section-{i}-content">'
-        line_number = 1
-        for line in section['content']:
-            colon_match = colon_pattern.match(line)
-            if colon_match:
-                bold_text = colon_match.group(1).strip()
-                remaining_text = colon_match.group(2).strip()
-                line_html = f'<span class="line-number">{line_number}</span><span class="code-line"><strong>{bold_text}:</strong> {remaining_text}</span><br>'
-            else:
-                line_html = f'<span class="line-number">{line_number}</span><span class="code-line">{line}</span><br>'
-            html_body += line_html
-            line_number += 1
-        html_body += '</div></div>'
+        html_body += section.to_html(i)
     return html_body
-
 
 @app.route('/', methods=['GET', 'POST'])
 def upload_file():
@@ -119,7 +125,6 @@ def upload_file():
             html_output = format_sections_to_html(sections)
             return render_template('display.html', section_links=section_links, html_output=html_output)
     return render_template('index.html')
-
 
 if __name__ == '__main__':
     webbrowser.open('http://127.0.0.1:5000/')
