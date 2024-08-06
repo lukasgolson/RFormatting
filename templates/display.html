@@ -8,32 +8,87 @@
     <style>
         body {
             font-family: 'OpenDyslexic', Arial, sans-serif;
-            line-height: 1.6; /* Increased line height for better readability */
+            line-height: 1.8; /* Increased line height for better readability */
+            background-color: #f9f9f9;
+            margin: 0;
+            padding: 0;
+            color: #333;
+            text-align: left; /* Ensure text is left-aligned */
+        }
+        .container {
+            width: 80%;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #fff;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            border-radius: 8px;
+        }
+        h1 {
+            margin-bottom: 20px;
+            font-size: 2em;
+            color: #444;
+            text-align: center; /* Center align the heading */
+        }
+        button {
+            display: block;
+            margin: 0 auto 20px;
+            padding: 10px 20px;
+            background-color: #007bff;
+            color: #fff;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+        button:hover {
+            background-color: #0056b3;
         }
         .section {
             margin-bottom: 20px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            overflow: hidden;
+            transition: box-shadow 0.3s ease;
+        }
+        .section:hover {
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
         }
         .section h2 {
             background-color: #f0f0f0;
-            padding: 10px;
-            border: 1px solid #ccc;
+            padding: 15px;
+            margin: 0;
+            border-bottom: 1px solid #ddd;
             cursor: pointer;
-            line-height: 1.4; /* Increased line height for headings */
+            line-height: 1.6; /* Increased line height for headings */
+            transition: background-color 0.3s ease;
+            text-align: left; /* Ensure text is left-aligned */
+        }
+        .section h2:hover {
+            background-color: #e0e0e0;
         }
         .section-content {
-            padding: 10px;
-            border: 1px solid #ccc;
-            border-top: none;
+            padding: 15px;
             display: none;
+            height: 0;
+            overflow: hidden;
             transition: all 0.3s ease;
-        }
-        .line-number {
-            color: #888;
-            margin-right: 10px;
+            text-align: left; /* Ensure text is left-aligned */
         }
         .code-line {
             font-family: 'OpenDyslexic', monospace;
-            line-height: 1.6; /* Increased line height for code lines */
+            line-height: 1.8; /* Increased line height for code lines */
+            background-color: #f7f7f7;
+            padding: 5px 10px;
+            border-radius: 4px;
+            margin-bottom: 5px;
+            text-align: left; /* Ensure text is left-aligned */
+        }
+        .line-number {
+            color: #888;
+            text-align: left;
+            flex-shrink: 0;
+            user-select: none; /* Prevent line numbers from being selected */
         }
         #section-links {
             position: sticky;
@@ -42,10 +97,13 @@
             padding: 10px;
             border-bottom: 1px solid #ccc;
             z-index: 1000;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            text-align: left; /* Ensure text is left-aligned */
         }
         #section-links a {
             text-decoration: none;
             color: #007bff;
+            margin-right: 15px;
         }
         #section-links a.active {
             font-weight: bold;
@@ -56,6 +114,9 @@
             padding: 10px;
             width: 100%;
             box-sizing: border-box;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            text-align: left; /* Ensure text is left-aligned */
         }
     </style>
     <script>
@@ -63,8 +124,10 @@
             const content = document.getElementById(id);
             if (content.style.display === 'none') {
                 content.style.display = 'block';
+                content.style.height = 'auto';
             } else {
                 content.style.display = 'none';
+                content.style.height = '0';
             }
         }
 
@@ -93,9 +156,13 @@
     </script>
 </head>
 <body>
-    <div>
+    <div class="container">
+        <h1>Viewing File: {{ filename }}</h1>
+        <button onclick="window.location.href='/load'">Load Different File</button>
+        <div id="section-links">
+            {{ section_links|safe }}
+        </div>
         <input type="text" id="search-input" placeholder="Search sections...">
-        {{ section_links|safe }}
         {{ html_output|safe }}
     </div>
 </body>

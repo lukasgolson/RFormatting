@@ -7,6 +7,7 @@ app = Flask(__name__)
 app.config['UPLOAD_FOLDER'] = 'uploads'
 os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
 
+
 class Section:
     def __init__(self, name):
         self.name = name
@@ -21,10 +22,22 @@ class Section:
     def to_html(self, index):
         colon_pattern = re.compile(r'^(.*?):(.*)$')
         html_body = f'<div class="section" id="section-{index}">'
-        html_body += f'<h2 onclick="toggleVisibility(\'section-{index}-content\')" style="cursor:pointer;">{self.name} <button>Toggle</button></h2>'
+        html_body += f'<h2 onclick="toggleVisibility(\'section-{index}-content\')" style="cursor:pointer;">{self.name}</h2>'
         html_body += f'<div id="section-{index}-content" style="display:none;">'
+
+        started = False
+
         for line_number, line in enumerate(self.content, 1):
+
             line_style = 'display:none;' if line.startswith('$') or line.startswith('[1]') else ''
+
+            if line == '':
+                if not started:
+                    continue
+                line_style = 'display:none;'
+            else:
+                started = True
+
             colon_match = colon_pattern.match(line)
             if colon_match:
                 bold_text = colon_match.group(1).strip()
@@ -36,6 +49,7 @@ class Section:
         html_body += '</div></div>'
         return html_body
 
+
 def fix_encoding_issues(text):
     replacements = {
         'â€˜': '‘', 'â€™': '’', 'â€¦': '…', 'â€”': '—',
@@ -45,6 +59,7 @@ def fix_encoding_issues(text):
     for old, new in replacements.items():
         text = text.replace(old, new)
     return text
+
 
 def parse_sections(r_output):
     r_output = fix_encoding_issues(r_output)
@@ -75,8 +90,10 @@ def parse_sections(r_output):
         sections.append(current_section)
     return sections
 
+
 def remove_empty_sections(sections):
     return [section for section in sections if not section.is_empty()]
+
 
 def format_section_links(sections):
     links = '<ul id="section-links">'
@@ -85,11 +102,13 @@ def format_section_links(sections):
     links += '</ul>'
     return links
 
+
 def format_sections_to_html(sections):
     html_body = ""
     for i, section in enumerate(sections):
         html_body += section.to_html(i)
     return html_body
+
 
 @app.route('/', methods=['GET', 'POST'])
 def upload_file():
@@ -108,8 +127,15 @@ def upload_file():
             sections = remove_empty_sections(sections)
             section_links = format_section_links(sections)
             html_output = format_sections_to_html(sections)
-            return render_template('display.html', section_links=section_links, html_output=html_output)
+            return render_template('display.html', filename=file.filename, section_links=section_links,
+                                   html_output=html_output)
     return render_template('index.html')
+
+
+@app.route('/load')
+def load_file():
+    return redirect(url_for('upload_file'))
+
 
 if __name__ == '__main__':
     webbrowser.open('http://127.0.0.1:5000/')

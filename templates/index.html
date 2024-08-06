@@ -1,8 +1,63 @@
 {% extends "base.html" %}
 
 {% block content %}
-<form action="/" method="post" enctype="multipart/form-data">
-    <input type="file" name="file" accept=".txt">
-    <button type="submit">Upload</button>
-</form>
+<div class="container">
+    <h1>Upload a File</h1>
+    <form action="/" method="post" enctype="multipart/form-data" class="upload-form">
+        <input type="file" name="file" accept=".txt" class="file-input">
+        <button type="submit" class="upload-button">Upload</button>
+    </form>
+</div>
 {% endblock %}
+
+<style>
+    body {
+        font-family: 'OpenDyslexic', Arial, sans-serif;
+        line-height: 1.8; /* Increased line height for better readability */
+        background-color: #f9f9f9;
+        margin: 0;
+        padding: 0;
+        color: #333;
+        text-align: left; /* Ensure text is left-aligned */
+    }
+    .container {
+        width: 80%;
+        max-width: 600px;
+        margin: 50px auto;
+        padding: 20px;
+        background-color: #fff;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        border-radius: 8px;
+        text-align: center;
+    }
+    h1 {
+        margin-bottom: 20px;
+        font-size: 2em;
+        color: #444;
+    }
+    .upload-form {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    }
+    .file-input {
+        margin-bottom: 20px;
+        padding: 10px;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        width: 100%;
+        box-sizing: border-box;
+    }
+    .upload-button {
+        padding: 10px 20px;
+        background-color: #007bff;
+        color: #fff;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        transition: background-color 0.3s ease;
+    }
+    .upload-button:hover {
+        background-color: #0056b3;
+    }
+</style>
