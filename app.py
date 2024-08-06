@@ -23,8 +23,7 @@ class Section:
         html_body = f'<div class="section" id="section-{index}">'
         html_body += f'<h2 onclick="toggleVisibility(\'section-{index}-content\')" style="cursor:pointer;">{self.name} <button>Toggle</button></h2>'
         html_body += f'<div id="section-{index}-content" style="display:none;">'
-        line_number = 1
-        for line in self.content:
+        for line_number, line in enumerate(self.content, 1):
             line_style = 'display:none;' if line.startswith('$') or line.startswith('[1]') else ''
             colon_match = colon_pattern.match(line)
             if colon_match:
@@ -34,22 +33,14 @@ class Section:
             else:
                 line_html = f'<span class="line-number" style="{line_style}">{line_number}</span><span class="code-line" style="{line_style}">{line}</span><br>'
             html_body += line_html
-            line_number += 1
         html_body += '</div></div>'
         return html_body
 
 def fix_encoding_issues(text):
     replacements = {
-        'â€˜': '‘',
-        'â€™': '’',
-        'â€¦': '…',
-        'â€”': '—',
-        'â€“': '–',
-        'â€': '”',
-        'â€œ': '“',
-        'â€': '†',
-        'â€™': '’',
-        'â€˜': '‘'
+        'â€˜': '‘', 'â€™': '’', 'â€¦': '…', 'â€”': '—',
+        'â€“': '–', 'â€': '”', 'â€œ': '“', 'â€': '†',
+        'â€™': '’', 'â€˜': '‘'
     }
     for old, new in replacements.items():
         text = text.replace(old, new)
@@ -61,7 +52,6 @@ def parse_sections(r_output):
     sections = []
     current_section = None
     header_block = False
-
     header_pattern = re.compile(r'^\s*#+\s*$')
     section_header_pattern = re.compile(r'^\s*##\s*(.*?)\s*##\s*$')
 
@@ -69,7 +59,6 @@ def parse_sections(r_output):
         if header_pattern.match(line):
             header_block = True
             continue
-
         if header_block and section_header_pattern.match(line):
             if current_section:
                 sections.append(current_section)
@@ -77,17 +66,13 @@ def parse_sections(r_output):
             current_section = Section(section_name)
             header_block = False
             continue
-
         if header_block and header_pattern.match(line):
             header_block = False
             continue
-
         if current_section:
             current_section.add_line(line)
-
     if current_section:
         sections.append(current_section)
-
     return sections
 
 def remove_empty_sections(sections):
